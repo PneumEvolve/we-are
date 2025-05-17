@@ -1,77 +1,100 @@
-import React, { useState } from "react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Self Node | We Are</title>
+  <style>
+    body {
+      background-color: #111;
+      color: #f0f0f0;
+      font-family: sans-serif;
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1, h2 {
+      color: #fff;
+    }
+    select, textarea, button {
+      width: 100%;
+      margin-top: 1rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+    }
+    textarea {
+      min-height: 150px;
+    }
+    .entry {
+      background: #222;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+    .entry small {
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  <h1>Self Node</h1>
+  <p>Select a mode, reflect, and record your thoughts. This is your sanctuary.</p>
 
-export default function SelfNodeApp() {
-  const [mode, setMode] = useState("dashboard");
-  const [entry, setEntry] = useState("");
-  const [entries, setEntries] = useState([]);
+  <label for="mode">Journal Mode:</label>
+  <select id="mode">
+    <option>Memory Extraction</option>
+    <option>Feelings Exploration</option>
+    <option>Dream Mapping</option>
+    <option>Quick Synchronicity</option>
+    <option>Quick Note</option>
+    <option>Diary Entry</option>
+    <option>Mantra Maker</option>
+  </select>
 
-  const modes = [
-    "Memory Extraction",
-    "Feelings Exploration",
-    "Dream Mapping",
-    "Quick Synchronicity",
-    "Quick Note",
-    "Diary Entry",
-    "Mantra Maker",
-  ];
+  <label for="entry">Your Thoughts:</label>
+  <textarea id="entry" placeholder="Let it flow..."></textarea>
 
-  const handleSave = () => {
-    if (!entry.trim()) return;
-    setEntries([...entries, { mode, content: entry, date: new Date().toISOString() }]);
-    setEntry("");
-    setMode("dashboard");
-  };
+  <button onclick="saveEntry()">Save Entry</button>
 
-  const renderDashboard = () => (
-    <div className="p-4 space-y-4">
-      <h1 className="text-3xl font-bold">Self Node Dashboard</h1>
-      <p className="text-sm text-gray-400">Choose a journal mode to begin your reflection:</p>
-      <div className="grid grid-cols-2 gap-2">
-        {modes.map((m) => (
-          <button
-            key={m}
-            className="p-2 border rounded hover:bg-gray-700"
-            onClick={() => setMode(m)}
-          >
-            {m}
-          </button>
-        ))}
-      </div>
-      <h2 className="text-xl mt-6">Previous Entries</h2>
-      <ul className="space-y-2">
-        {entries.map((e, idx) => (
-          <li key={idx} className="border p-2 rounded">
-            <div className="text-sm text-gray-400">{e.date.split("T")[0]} – {e.mode}</div>
-            <div className="whitespace-pre-wrap text-sm">{e.content}</div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+  <h2>Your Past Entries</h2>
+  <div id="entries"></div>
 
-  const renderJournal = () => (
-    <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-semibold">{mode}</h1>
-      <textarea
-        className="w-full h-48 p-2 border rounded bg-black text-white"
-        placeholder={`Write your thoughts for: ${mode}`}
-        value={entry}
-        onChange={(e) => setEntry(e.target.value)}
-      ></textarea>
-      <div className="space-x-2">
-        <button className="bg-blue-600 px-4 py-2 rounded" onClick={handleSave}>
-          Save
-        </button>
-        <button className="bg-gray-700 px-4 py-2 rounded" onClick={() => setMode("dashboard")}>
-          Cancel
-        </button>
-      </div>
-    </div>
-  );
+  <script>
+    function saveEntry() {
+      const mode = document.getElementById('mode').value;
+      const content = document.getElementById('entry').value.trim();
+      if (!content) return;
 
-  return (
-    <div className="min-h-screen bg-black text-white">
-      {mode === "dashboard" ? renderDashboard() : renderJournal()}
-    </div>
-  );
-}
+      const date = new Date().toISOString();
+      const entry = { mode, content, date };
+
+      const stored = JSON.parse(localStorage.getItem('entries') || '[]');
+      stored.unshift(entry);
+      localStorage.setItem('entries', JSON.stringify(stored));
+
+      document.getElementById('entry').value = '';
+      renderEntries();
+    }
+
+    function renderEntries() {
+      const container = document.getElementById('entries');
+      container.innerHTML = '';
+
+      const entries = JSON.parse(localStorage.getItem('entries') || '[]');
+      entries.forEach(e => {
+        const div = document.createElement('div');
+        div.className = 'entry';
+        div.innerHTML = `
+          <small>${e.date.split('T')[0]} — ${e.mode}</small>
+          <p>${e.content.replace(/\n/g, '<br>')}</p>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    renderEntries();
+  </script>
+</body>
+</html>
