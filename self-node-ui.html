@@ -1,0 +1,77 @@
+import React, { useState } from "react";
+
+export default function SelfNodeApp() {
+  const [mode, setMode] = useState("dashboard");
+  const [entry, setEntry] = useState("");
+  const [entries, setEntries] = useState([]);
+
+  const modes = [
+    "Memory Extraction",
+    "Feelings Exploration",
+    "Dream Mapping",
+    "Quick Synchronicity",
+    "Quick Note",
+    "Diary Entry",
+    "Mantra Maker",
+  ];
+
+  const handleSave = () => {
+    if (!entry.trim()) return;
+    setEntries([...entries, { mode, content: entry, date: new Date().toISOString() }]);
+    setEntry("");
+    setMode("dashboard");
+  };
+
+  const renderDashboard = () => (
+    <div className="p-4 space-y-4">
+      <h1 className="text-3xl font-bold">Self Node Dashboard</h1>
+      <p className="text-sm text-gray-400">Choose a journal mode to begin your reflection:</p>
+      <div className="grid grid-cols-2 gap-2">
+        {modes.map((m) => (
+          <button
+            key={m}
+            className="p-2 border rounded hover:bg-gray-700"
+            onClick={() => setMode(m)}
+          >
+            {m}
+          </button>
+        ))}
+      </div>
+      <h2 className="text-xl mt-6">Previous Entries</h2>
+      <ul className="space-y-2">
+        {entries.map((e, idx) => (
+          <li key={idx} className="border p-2 rounded">
+            <div className="text-sm text-gray-400">{e.date.split("T")[0]} – {e.mode}</div>
+            <div className="whitespace-pre-wrap text-sm">{e.content}</div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
+  const renderJournal = () => (
+    <div className="p-4 space-y-4">
+      <h1 className="text-2xl font-semibold">{mode}</h1>
+      <textarea
+        className="w-full h-48 p-2 border rounded bg-black text-white"
+        placeholder={`Write your thoughts for: ${mode}`}
+        value={entry}
+        onChange={(e) => setEntry(e.target.value)}
+      ></textarea>
+      <div className="space-x-2">
+        <button className="bg-blue-600 px-4 py-2 rounded" onClick={handleSave}>
+          Save
+        </button>
+        <button className="bg-gray-700 px-4 py-2 rounded" onClick={() => setMode("dashboard")}>
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-black text-white">
+      {mode === "dashboard" ? renderDashboard() : renderJournal()}
+    </div>
+  );
+}
