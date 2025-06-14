@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Outfit Builder</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    #builder { display:flex; gap:1rem; flex-wrap:wrap; }
+    #outfit-area { position:relative; width:300px; height:500px; border:1px solid #555; }
+    #outfit-area img#self-image { width:100%; height:100%; object-fit:contain; }
+    #clothes-list { max-width:150px; }
+    #clothes-list img { width:100%; margin-bottom:0.5rem; cursor:grab; }
+    .clothing { position:absolute; cursor:move; max-width:150px; }
+    .saved-outfit { position:relative; width:150px; height:250px; border:1px solid #444; margin-top:1rem; }
+    .saved-outfit img:first-child { width:100%; height:100%; object-fit:contain; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="projects.html">Projects</a>
+    <a href="earn.html">Earn &amp; Contribute</a>
+    <a href="governance.html">Governance</a>
+    <a href="starter-kits.html">Starter Kits</a>
+    <a href="events.html">Events</a>
+    <a href="team.html">Team</a>
+    <a href="faq.html">FAQ</a>
+    <a href="news.html">News</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+
+  <h1>Outfit Builder</h1>
+
+  <label>Upload your photo:
+    <input type="file" id="self-input" accept="image/*">
+  </label>
+  <br>
+  <label>Upload clothing images:
+    <input type="file" id="clothes-input" accept="image/*" multiple>
+  </label>
+  <br>
+  <button onclick="saveOutfit()">Save Outfit</button>
+
+  <div id="builder">
+    <div id="outfit-area">
+      <img id="self-image">
+    </div>
+    <div id="clothes-list"></div>
+  </div>
+
+  <h2>Saved Outfits</h2>
+  <div id="saved-outfits"></div>
+
+  <footer>
+    <p><a href="index.html">Home</a> · <a href="about.html">About</a> · <a href="projects.html">Projects</a> · <a href="earn.html">Earn &amp; Contribute</a> · <a href="governance.html">Governance</a> · <a href="starter-kits.html">Starter Kits</a> · <a href="events.html">Events</a> · <a href="team.html">Team</a> · <a href="faq.html">FAQ</a> · <a href="news.html">News</a> · <a href="contact.html">Contact</a></p>
+  </footer>
+
+  <script>
+    const selfInput = document.getElementById('self-input');
+    const clothesInput = document.getElementById('clothes-input');
+    const selfImage = document.getElementById('self-image');
+    const clothesList = document.getElementById('clothes-list');
+    const outfitArea = document.getElementById('outfit-area');
+
+    selfInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => selfImage.src = ev.target.result;
+      reader.readAsDataURL(file);
+    });
+
+    clothesInput.addEventListener('change', e => {
+      Array.from(e.target.files).forEach(f => {
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const img = document.createElement('img');
+          img.src = ev.target.result;
+          img.draggable = true;
+          img.addEventListener('dragstart', dragStart);
+          clothesList.appendChild(img);
+        };
+        reader.readAsDataURL(f);
+      });
+      clothesInput.value = '';
+    });
+
+    function dragStart(e) {
+      e.dataTransfer.setData('text/plain', e.target.src);
+    }
+
+    outfitArea.addEventListener('dragover', e => e.preventDefault());
+    outfitArea.addEventListener('drop', e => {
+      e.preventDefault();
+      const src = e.dataTransfer.getData('text/plain');
+      if (!src) return;
+      const img = document.createElement('img');
+      img.src = src;
+      img.className = 'clothing';
+      img.style.left = e.offsetX + 'px';
+      img.style.top = e.offsetY + 'px';
+      enableDrag(img);
+      outfitArea.appendChild(img);
+    });
+
+    function enableDrag(el) {
+      el.addEventListener('mousedown', function(ev) {
+        const offsetX = ev.offsetX;
+        const offsetY = ev.offsetY;
+        function move(moveEv) {
+          el.style.left = (moveEv.pageX - outfitArea.offsetLeft - offsetX) + 'px';
+          el.style.top = (moveEv.pageY - outfitArea.offsetTop - offsetY) + 'px';
+        }
+        function up() {
+          document.removeEventListener('mousemove', move);
+          document.removeEventListener('mouseup', up);
+        }
+        document.addEventListener('mousemove', move);
+        document.addEventListener('mouseup', up);
+      });
+    }
+
+    function saveOutfit() {
+      const outfit = {
+        base: selfImage.src,
+        items: Array.from(outfitArea.querySelectorAll('.clothing')).map(img => ({
+          src: img.src,
+          left: img.style.left,
+          top: img.style.top
+        }))
+      };
+      const stored = JSON.parse(localStorage.getItem('outfits') || '[]');
+      stored.unshift(outfit);
+      localStorage.setItem('outfits', JSON.stringify(stored));
+      renderSaved();
+      alert('Outfit saved!');
+    }
+
+    function renderSaved() {
+      const container = document.getElementById('saved-outfits');
+      container.innerHTML = '';
+      const outfits = JSON.parse(localStorage.getItem('outfits') || '[]');
+      outfits.forEach(o => {
+        const div = document.createElement('div');
+        div.className = 'saved-outfit';
+        const base = document.createElement('img');
+        base.src = o.base;
+        div.appendChild(base);
+        o.items.forEach(it => {
+          const img = document.createElement('img');
+          img.src = it.src;
+          img.className = 'clothing';
+          img.style.left = it.left;
+          img.style.top = it.top;
+          div.appendChild(img);
+        });
+        container.appendChild(div);
+      });
+    }
+
+    renderSaved();
+  </script>
+</body>
+</html>
