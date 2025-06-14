@@ -1,100 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Self Node | We Are</title>
-  <style>
-    body {
-      background-color: #111;
-      color: #f0f0f0;
-      font-family: sans-serif;
-      padding: 2rem;
-      max-width: 800px;
-      margin: auto;
-    }
-    h1, h2 {
-      color: #fff;
-    }
-    select, textarea, button {
-      width: 100%;
-      margin-top: 1rem;
-      padding: 0.75rem;
-      border-radius: 8px;
-      border: none;
-      font-size: 1rem;
-    }
-    textarea {
-      min-height: 150px;
-    }
-    .entry {
-      background: #222;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-top: 1rem;
-    }
-    .entry small {
-      color: #999;
-    }
-  </style>
+  <meta http-equiv="refresh" content="0; URL=index.html">
+  <title>Redirect</title>
 </head>
 <body>
-  <h1>Self Node</h1>
-  <p>Select a mode, reflect, and record your thoughts. This is your sanctuary.</p>
-
-  <label for="mode">Journal Mode:</label>
-  <select id="mode">
-    <option>Memory Extraction</option>
-    <option>Feelings Exploration</option>
-    <option>Dream Mapping</option>
-    <option>Quick Synchronicity</option>
-    <option>Quick Note</option>
-    <option>Diary Entry</option>
-    <option>Mantra Maker</option>
-  </select>
-
-  <label for="entry">Your Thoughts:</label>
-  <textarea id="entry" placeholder="Let it flow..."></textarea>
-
-  <button onclick="saveEntry()">Save Entry</button>
-
-  <h2>Your Past Entries</h2>
-  <div id="entries"></div>
-
-  <script>
-    function saveEntry() {
-      const mode = document.getElementById('mode').value;
-      const content = document.getElementById('entry').value.trim();
-      if (!content) return;
-
-      const date = new Date().toISOString();
-      const entry = { mode, content, date };
-
-      const stored = JSON.parse(localStorage.getItem('entries') || '[]');
-      stored.unshift(entry);
-      localStorage.setItem('entries', JSON.stringify(stored));
-
-      document.getElementById('entry').value = '';
-      renderEntries();
-    }
-
-    function renderEntries() {
-      const container = document.getElementById('entries');
-      container.innerHTML = '';
-
-      const entries = JSON.parse(localStorage.getItem('entries') || '[]');
-      entries.forEach(e => {
-        const div = document.createElement('div');
-        div.className = 'entry';
-        div.innerHTML = `
-          <small>${e.date.split('T')[0]} — ${e.mode}</small>
-          <p>${e.content.replace(/\n/g, '<br>')}</p>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    renderEntries();
-  </script>
+  <p>Redirecting to <a href="index.html">Whitepaper Outline</a>...</p>
 </body>
 </html>
